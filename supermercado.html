@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SuperMercado Online</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .cart-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .cart-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .cart-btn:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+        }
+
+        .categories {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .category-btn {
+            background: white;
+            border: none;
+            padding: 15px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .category-btn:hover, .category-btn.active {
+            background: #667eea;
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .product-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+
+        .product-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .product-price {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .add-to-cart {
+            width: 100%;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .add-to-cart:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .cart-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+        }
+
+        .cart-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .cart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .item-info {
+            flex: 1;
+        }
+
+        .item-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .qty-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .qty-btn:hover {
+            background: #5a67d8;
+        }
+
+        .remove-btn {
+            background: #ff4757;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .cart-total {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #667eea;
+            text-align: center;
+        }
+
+        .total-amount {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .checkout-btn {
+            width: 100%;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .empty-cart {
+            text-align: center;
+            color: #666;
+            padding: 40px;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #4CAF50;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            z-index: 2000;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .products-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 15px;
+            }
+            
+            header {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">🛒 SuperMercado Online</div>
+            <div class="cart-info">
+                <button class="cart-btn" onclick="openCart()">
+                    🛍️ Carrinho (<span id="cart-count">0</span>)
+                    <span id="cart-total">R$ 0,00</span>
+                </button>
+            </div>
+        </header>
+
+        <div class="categories">
+            <button class="category-btn active" onclick="filterProducts('todos')">🛒 Todos</button>
+            <button class="category-btn" onclick="filterProducts('frutas')">🍎 Frutas</button>
+            <button class="category-btn" onclick="filterProducts('verduras')">🥬 Verduras</button>
+            <button class="category-btn" onclick="filterProducts('carnes')">🥩 Carnes</button>
+            <button class="category-btn" onclick="filterProducts('laticínios')">🥛 Laticínios</button>
+            <button class="category-btn" onclick="filterProducts('bebidas')">🥤 Bebidas</button>
+        </div>
+
+        <div class="products-grid" id="products-container">
+            <!-- Produtos serão inseridos aqui pelo JavaScript -->
+        </div>
+    </div>
+
+    <!-- Modal do Carrinho -->
+    <div class="cart-modal" id="cart-modal">
+        <div class="cart-content">
+            <div class="cart-header">
+                <h2>🛍️ Seu Carrinho</h2>
+                <button class="close-btn" onclick="closeCart()">&times;</button>
+            </div>
+            <div id="cart-items">
+                <div class="empty-cart">
+                    <p>Seu carrinho está vazio</p>
+                    <p>Adicione alguns produtos para começar!</p>
+                </div>
+            </div>
+            <div class="cart-total" id="cart-summary" style="display: none;">
+                <div class="total-amount">Total: <span id="final-total">R$ 0,00</span></div>
+                <button class="checkout-btn" onclick="checkout()">Finalizar Compra</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notificação -->
+    <div class="notification" id="notification"></div>
+
+    <script>
+        // Base de dados dos produtos
+        const products = [
+            // Frutas
+            { id: 1, name: 'Maçã Gala', price: 4.99, category: 'frutas' },
+            { id: 2, name: 'Banana Prata', price: 3.50, category: 'frutas' },
+            { id: 3, name: 'Laranja Lima', price: 2.99, category: 'frutas' },
+            { id: 4, name: 'Abacaxi', price: 6.50, category: 'frutas' },
+            { id: 5, name: 'Manga Palmer', price: 4.20, category: 'frutas' },
+            
+            // Verduras
+            { id: 6, name: 'Alface Americana', price: 2.50, category: 'verduras' },
+            { id: 7, name: 'Tomate', price: 5.99, category: 'verduras' },
+            { id: 8, name: 'Cebola', price: 3.80, category: 'verduras' },
+            { id: 9, name: 'Batata', price: 4.50, category: 'verduras' },
+            { id: 10, name: 'Cenoura', price: 3.20, category: 'verduras' },
+            
+            // Carnes
+            { id: 11, name: 'Frango (1kg)', price: 12.90, category: 'carnes' },
+            { id: 12, name: 'Carne Bovina (1kg)', price: 28.50, category: 'carnes' },
+            { id: 13, name: 'Peixe Tilápia (1kg)', price: 18.90, category: 'carnes' },
+            { id: 14, name: 'Linguiça Toscana (500g)', price: 8.99, category: 'carnes' },
+            
+            // Laticínios
+            { id: 15, name: 'Leite Integral (1L)', price: 4.20, category: 'laticínios' },
+            { id: 16, name: 'Queijo Mussarela (500g)', price: 15.90, category: 'laticínios' },
+            { id: 17, name: 'Iogurte Natural', price: 3.50, category: 'laticínios' },
+            { id: 18, name: 'Manteiga (500g)', price: 8.99, category: 'laticínios' },
+            
+            // Bebidas
+            { id: 19, name: 'Água Mineral (1.5L)', price: 2.50, category: 'bebidas' },
+            { id: 20, name: 'Refrigerante Cola (2L)', price: 5.99, category: 'bebidas' },
+            { id: 21, name: 'Suco de Laranja (1L)', price: 4.80, category: 'bebidas' },
+            { id: 22, name: 'Cerveja (350ml)', price: 3.20, category: 'bebidas' }
+        ];
+
+        let cart = [];
+        let currentCategory = 'todos';
+
+        // Função para exibir produtos
+        function displayProducts(productsToShow = products) {
+            const container = document.getElementById('products-container');
+            container.innerHTML = '';
+
+            productsToShow.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card';
+                productCard.innerHTML = `
+                    <div class="product-name">${product.name}</div>
+                    <div class="product-price">R$ ${product.price.toFixed(2)}</div>
+                    <button class="add-to-cart" onclick="addToCart(${product.id})">
+                        Adicionar ao Carrinho
+                    </button>
+                `;
+                container.appendChild(productCard);
+            });
+        }
+
+        // Função para filtrar produtos por categoria
+        function filterProducts(category) {
+            currentCategory = category;
+            
+            // Atualizar botões ativos
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Filtrar e exibir produtos
+            if (category === 'todos') {
+                displayProducts(products);
+            } else {
+                const filtered = products.filter(product => product.category === category);
+                displayProducts(filtered);
+            }
+        }
+
+        // Função para adicionar produto ao carrinho
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            const existingItem = cart.find(item => item.id === productId);
+
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({ ...product, quantity: 1 });
+            }
+
+            updateCartDisplay();
+            showNotification(`${product.name} adicionado ao carrinho!`);
+        }
+
+        // Função para atualizar a exibição do carrinho
+        function updateCartDisplay() {
+            const cartCount = document.getElementById('cart-count');
+            const cartTotal = document.getElementById('cart-total');
+            
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+            cartCount.textContent = totalItems;
+            cartTotal.textContent = `R$ ${totalPrice.toFixed(2)}`;
+        }
+
+        // Função para abrir o carrinho
+        function openCart() {
+            const modal = document.getElementById('cart-modal');
+            const cartItems = document.getElementById('cart-items');
+            const cartSummary = document.getElementById('cart-summary');
+
+            if (cart.length === 0) {
+                cartItems.innerHTML = `
+                    <div class="empty-cart">
+                        <p>Seu carrinho está vazio</p>
+                        <p>Adicione alguns produtos para começar!</p>
+                    </div>
+                `;
+                cartSummary.style.display = 'none';
+            } else {
+                cartItems.innerHTML = '';
+                cart.forEach(item => {
+                    const cartItem = document.createElement('div');
+                    cartItem.className = 'cart-item';
+                    cartItem.innerHTML = `
+                        <div class="item-info">
+                            <strong>${item.name}</strong><br>
+                            R$ ${item.price.toFixed(2)} cada
+                        </div>
+                        <div class="item-controls">
+                            <button class="qty-btn" onclick="changeQuantity(${item.id}, -1)">-</button>
+                            <span>${item.quantity}</span>
+                            <button class="qty-btn" onclick="changeQuantity(${item.id}, 1)">+</button>
+                            <button class="remove-btn" onclick="removeFromCart(${item.id})">Remover</button>
+                        </div>
+                    `;
+                    cartItems.appendChild(cartItem);
+                });
+
+                const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                document.getElementById('final-total').textContent = `R$ ${totalPrice.toFixed(2)}`;
+                cartSummary.style.display = 'block';
+            }
+
+            modal.style.display = 'block';
+        }
+
+        // Função para fechar o carrinho
+        function closeCart() {
+            document.getElementById('cart-modal').style.display = 'none';
+        }
+
+        // Função para alterar quantidade
+        function changeQuantity(productId, change) {
+            const item = cart.find(item => item.id === productId);
+            if (item) {
+                item.quantity += change;
+                if (item.quantity <= 0) {
+                    removeFromCart(productId);
+                } else {
+                    updateCartDisplay();
+                    openCart(); // Atualizar a visualização do carrinho
+                }
+            }
+        }
+
+        // Função para remover item do carrinho
+        function removeFromCart(productId) {
+            cart = cart.filter(item => item.id !== productId);
+            updateCartDisplay();
+            openCart(); // Atualizar a visualização do carrinho
+        }
+
+        // Função para finalizar compra
+        function checkout() {
+            if (cart.length === 0) return;
+
+            const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            
+            alert(`Compra finalizada!\n\nTotal de itens: ${totalItems}\nValor total: R$ ${totalPrice.toFixed(2)}\n\nObrigado por comprar conosco! 🛒`);
+            
+            cart = [];
+            updateCartDisplay();
+            closeCart();
+        }
+
+        // Função para mostrar notificação
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 2000);
+        }
+
+        // Fechar carrinho clicando fora dele
+        document.getElementById('cart-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeCart();
+            }
+        });
+
+        // Inicializar o app
+        window.addEventListener('load', function() {
+            displayProducts();
+            updateCartDisplay();
+        });
+    </script>
+</body>
+</html>
